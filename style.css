@@ -635,6 +635,35 @@ header nav a.active {
     margin-bottom: 1.8rem;
 }
 
+/* ===================== SCROLL REVEAL ANIMATION ===================== */
+
+/* Base state (hidden) */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+/* When visible */
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Direction variants */
+.reveal-left {
+    transform: translateX(-60px);
+}
+
+.reveal-right {
+    transform: translateX(60px);
+}
+
+.reveal-zoom {
+    transform: scale(0.9);
+}
+
+
 /* FOOTER */
 
 footer {
@@ -720,3 +749,11 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+
+
+
+
+
+
+
+

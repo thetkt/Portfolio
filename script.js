@@ -5,130 +5,122 @@ document.addEventListener("DOMContentLoaded", () => {
     const navLinks = document.querySelectorAll("header nav a");
     const sections = document.querySelectorAll("section");
 
-    /* HEADER SCROLL + SCROLL SPY (ONE LISTENER) */
-    
+    /* HEADER SCROLL + SCROLL SPY */
     window.addEventListener("scroll", () => {
-        // Header style on scroll
-        if (window.scrollY > 50) {
-            header.classList.add("scrolled");
-        } else {
-            header.classList.remove("scrolled");
-        }
+        header.classList.toggle("scrolled", window.scrollY > 50);
 
-        // Scroll spy
-        let currentSection = "";
+        let current = "";
         sections.forEach(section => {
             const top = section.offsetTop - 160;
             const height = section.offsetHeight;
-
             if (window.scrollY >= top && window.scrollY < top + height) {
-                currentSection = section.id;
+                current = section.id;
             }
         });
 
         navLinks.forEach(link => {
             link.classList.toggle(
                 "active",
-                link.getAttribute("href") === `#${currentSection}`
+                link.getAttribute("href") === `#${current}`
             );
         });
     });
 
-    /* HAMBURGER / MOBILE NAV */
+    /* MOBILE NAV */
     hamburger.addEventListener("click", () => {
         nav.classList.toggle("active");
     });
 
-    navLinks.forEach(link => {
-        link.addEventListener("click", () => {
-            nav.classList.remove("active");
-        });
-    });
+    navLinks.forEach(link =>
+        link.addEventListener("click", () => nav.classList.remove("active"))
+    );
 
-    /* PROJECT IMAGE MODAL */
+    /* PROJECT MODAL */
+    const cards = document.querySelectorAll(".project-card");
+    const modal = document.getElementById("project-modal");
+    const modalImg = document.getElementById("project-modal-image");
+    const closeBtn = document.querySelector(".project-modal-close");
 
-    const projectCards = document.querySelectorAll(".project-card");
-    const projectModal = document.getElementById("project-modal");
-    const projectModalImg = document.getElementById("project-modal-image");
-    const projectModalClose = document.querySelector(".project-modal-close");
-
-    projectCards.forEach(card => {
+    cards.forEach(card => {
         card.addEventListener("click", e => {
-            // avoid triggering when clicking on buttons (View Code / Live Demo)
             if (e.target.closest(".project-links")) return;
-
-            const img = card.querySelector(".project-image img");
-            if (!img) return;
-
-            projectModalImg.src = img.src;
-            projectModalImg.alt = img.alt || "";
-            projectModal.classList.add("open");
-            projectModal.setAttribute("aria-hidden", "false");
+            const img = card.querySelector("img");
+            modalImg.src = img.src;
+            modal.classList.add("open");
         });
     });
 
-    projectModalClose.addEventListener("click", () => {
-        projectModal.classList.remove("open");
-        projectModal.setAttribute("aria-hidden", "true");
+    closeBtn.addEventListener("click", () => modal.classList.remove("open"));
+    modal.addEventListener("click", e => {
+        if (e.target === modal) modal.classList.remove("open");
     });
 
-    projectModal.addEventListener("click", e => {
-        if (e.target === projectModal) {
-            projectModal.classList.remove("open");
-            projectModal.setAttribute("aria-hidden", "true");
-        }
-    });
-
-    window.addEventListener("keydown", e => {
-        if (e.key === "Escape"){
-            projectModal.classList.remove("open");
-            projectModal.setAttribute("aria-hidden", "true");
-        }
-    });
-
-    /* TYPING EFFECT */
+    /* ✅ TYPING EFFECT (FIXED & SAFE) */
     const typingElement = document.getElementById("typing");
-    const words = ["a Front-End Developer","a Backend Developer", "an AI ML Enthusiast"];
-    let wordIndex = 0;
-    let letterIndex = 0;
-    let isDeleting = false;
 
-    function type() {
-        const currentWord = words[wordIndex];
+    if (typingElement) {
+        const words = [
+            "a Front-End Developer",
+            "a Backend Developer",
+            "an AI ML Enthusiast"
+        ];
 
-        if (isDeleting) {
-            letterIndex--;
-        } else {
-            letterIndex++;
+        let wordIndex = 0;
+        let letterIndex = 0;
+        let isDeleting = false;
+
+        function type() {
+            const word = words[wordIndex];
+            letterIndex += isDeleting ? -1 : 1;
+
+            typingElement.textContent = word.substring(0, letterIndex);
+
+            let speed = isDeleting ? 70 : 140;
+
+            if (!isDeleting && letterIndex === word.length) {
+                speed = 1500;
+                isDeleting = true;
+            } else if (isDeleting && letterIndex === 0) {
+                isDeleting = false;
+                wordIndex = (wordIndex + 1) % words.length;
+                speed = 500;
+            }
+
+            setTimeout(type, speed);
         }
 
-        typingElement.textContent = currentWord.substring(0, letterIndex);
-
-        let typeSpeed = 150;
-        if (isDeleting) typeSpeed /= 2;
-
-        if (!isDeleting && letterIndex === currentWord.length) {
-            typeSpeed = 1800;
-            isDeleting = true;
-        } else if (isDeleting && letterIndex === 0) {
-            isDeleting = false;
-            wordIndex = (wordIndex + 1) % words.length;
-            typeSpeed = 500;
-        }
-
-        setTimeout(type, typeSpeed);
+        type();
     }
 
-    type();
-
-    /* OPTIONAL: prevent contact form reload */
-                    
-    const contactForm = document.querySelector(".contact-form");
-    if (contactForm) {
-        contactForm.addEventListener("submit", e => {
+    /* CONTACT FORM */
+    const form = document.querySelector(".contact-form");
+    if (form) {
+        form.addEventListener("submit", e => {
             e.preventDefault();
             alert("Thank you! Your message has been received.");
-            contactForm.reset();
+            form.reset();
         });
     }
+
+    /* ===================== SCROLL REVEAL ANIMATION ===================== */
+
+const revealElements = document.querySelectorAll(".reveal");
+
+const revealObserver = new IntersectionObserver(
+    (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("active");
+                observer.unobserve(entry.target); // animate once
+            }
+        });
+    },
+    {
+        threshold: 0.15,   // 15% visible
+        rootMargin: "0px 0px -50px 0px"
+    }
+);
+
+revealElements.forEach(el => revealObserver.observe(el));
+
 });
